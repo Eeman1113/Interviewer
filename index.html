@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interview Question Player</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1a202c; /* Dark background */
+            color: #e2e8f0; /* Light text */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: #2d3748; /* Slightly lighter dark background for card */
+            border-radius: 1.5rem; /* More rounded corners */
+            padding: 2.5rem; /* Increased padding */
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2); /* Stronger shadow */
+            max-width: 900px; /* Max width for larger screens */
+            width: 100%;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem; /* Space between elements */
+        }
+        .question-text {
+            font-size: 2.5rem; /* Larger text */
+            font-weight: 600; /* Semi-bold */
+            color: #f7fafc; /* Even lighter text for question */
+            margin-bottom: 1.5rem;
+            line-height: 1.4; /* Improved readability */
+        }
+        .audio-controls {
+            width: 100%;
+            border-radius: 0.75rem; /* Rounded audio player */
+            background-color: #4a5568; /* Darker background for audio controls */
+            padding: 0.75rem;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .nav-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem; /* Space between buttons */
+            margin-top: 2rem;
+        }
+        .nav-button {
+            padding: 1rem 2.5rem;
+            border-radius: 1rem; /* Very rounded buttons */
+            font-weight: 700; /* Bold text */
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15); /* Button shadow */
+        }
+        .nav-button-primary {
+            background-color: #63b3ed; /* Light blue */
+            color: #1a202c;
+        }
+        .nav-button-primary:hover:not(:disabled) {
+            background-color: #4299e1; /* Darker blue on hover */
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+        }
+        .nav-button-disabled {
+            background-color: #4a5568; /* Grey for disabled */
+            color: #a0aec0;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 640px) {
+            .question-text {
+                font-size: 1.8rem; /* Smaller font on mobile */
+            }
+            .container {
+                padding: 1.5rem;
+                gap: 1.5rem;
+            }
+            .nav-button {
+                padding: 0.8rem 1.8rem;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <p id="question-display" class="question-text">Loading questions...</p>
+
+        <audio id="audio-player" class="audio-controls" controls preload="auto">
+            <source src="interview.mp3" type="audio/mpeg">
+            Your browser does not support the audio element.
+        </audio>
+
+        <div class="nav-buttons">
+            <button id="prev-button" class="nav-button nav-button-primary nav-button-disabled">Previous</button>
+            <button id="next-button" class="nav-button nav-button-primary">Next</button>
+        </div>
+    </div>
+
+    <script>
+        // Embedded JSON data
+        const questionsData = [
+            { "id": 0, "start": 0, "end": 4.18, "text": "All right, let's dive into some questions about our product inventory API." },
+            { "id": 1, "start": 4.72, "end": 8.9, "text": "First up, what is the primary purpose of this RESTful API project?" },
+            { "id": 2, "start": 9.48, "end": 13.88, "text": "And building on that, what are the main dependencies used in this project?" },
+            { "id": 3, "start": 14.52, "end": 18.04, "text": "How is the server initialized and configured in this application?" },
+            { "id": 4, "start": 18.76, "end": 22.32, "text": "What is the purpose of express.json middleware?" },
+            { "id": 5, "start": 22.74, "end": 28.2, "text": "What are the distinct directories in the project structure, and what is the purpose of each?" },
+            { "id": 6, "start": 29, "end": 31.5, "text": "How are routes organized in this application?" },
+            { "id": 7, "start": 32.46, "end": 35.36, "text": "What type of data storage is used in this project?" },
+            { "id": 8, "start": 36.32, "end": 40.38, "text": "And how is sensitive data, like the JWT Secret, handled?" },
+            { "id": 9, "start": 40.88, "end": 45.72, "text": "What are the three different product statuses, and what determines each?" },
+            { "id": 10, "start": 46.56, "end": 51.02, "text": "What HTTP method would you use to retrieve a list of all products?" },
+            { "id": 11, "start": 51.78, "end": 55.56, "text": "What HTTP method would you use to create a new product?" },
+            { "id": 12, "start": 56.24, "end": 58.1, "text": "What is the role of .env?" },
+            { "id": 13, "start": 58.2, "end": 64.92, "text": "in this project? What is the purpose of the tests directory? What are the key" },
+            { "id": 14, "start": 64.92, "end": 71.04, "text": "elements of the product inventory API project overview? And finally for this" },
+            { "id": 15, "start": 71.04, "end": 75.78, "text": "section, what are the benefits of a modular architecture as described in the" },
+            { "id": 16, "start": 75.78, "end": 81.54, "text": "project overview? Moving on to security, what authentication mechanism is used in" },
+            { "id": 17, "start": 81.54, "end": 87, "text": "this project? Explain the basic authentication flow using JWT in this" },
+            { "id": 18, "start": 87, "end": 94.9, "text": "application. How are protected routes secured in this application? What package is used for JWT" },
+            { "id": 19, "start": 94.9, "end": 101.18, "text": "implementation? What information is typically contained within a JWT payload in this project?" },
+            { "id": 20, "start": 101.84, "end": 110.56, "text": "What does IAT and EXP represent in a JWT payload? How are passwords handled securely in this project" },
+            { "id": 21, "start": 110.56, "end": 112.72, "text": "before storage." },
+            { "id": 22, "start": 112.72, "end": 118.62, "text": "Where is the JWT token typically stored when sent from the client to the server?" },
+            { "id": 23, "start": 118.62, "end": 133.586, "text": "What are the key steps involved in token verification and validation What security measure helps protect against brute force attacks on sensitive data Beyond hashing what other security measures are mentioned for password handling" },
+            { "id": 24, "start": 134.406, "end": 138.726, "text": "Why is it important to validate user credentials before generating a token?" },
+            { "id": 25, "start": 139.426, "end": 143.226, "text": "How is the JWT secret configured in the application?" },
+            { "id": 26, "start": 143.986, "end": 148.366, "text": "What happens if a JWT token is expired during verification?" },
+            { "id": 27, "start": 148.366, "end": 153.966, "text": "What role do custom claims play in a JWT for user identification?" },
+            { "id": 28, "start": 154.826, "end": 160.886, "text": "Now about data management. How are file operations handled asynchronously in this project?" },
+            { "id": 29, "start": 161.546, "end": 166.186, "text": "What Node.js module is specifically mentioned for asynchronous file operations?" },
+            { "id": 30, "start": 167.046, "end": 170.546, "text": "What is the purpose of data validation before storing data?" },
+            { "id": 31, "start": 171.166, "end": 176.426, "text": "What does atomic operations mean in the context of file operations, and why are they important?" },
+            { "id": 32, "start": 176.426, "end": 181.006, "text": "How is product status automatically determined based on quantity?" },
+            { "id": 33, "start": 181.986, "end": 186.706, "text": "List the four main CRAT operations and their corresponding HTTP methods." },
+            { "id": 34, "start": 187.386, "end": 192.746, "text": "What is the difference between put and patch HTTP methods for product updates?" },
+            { "id": 35, "start": 193.426, "end": 197.306, "text": "What are some examples of validation checks performed on product data?" },
+            { "id": 36, "start": 197.966, "end": 201.426, "text": "What is the expected date format for product data validation?" },
+            { "id": 37, "start": 201.82599, "end": 206.186, "text": "What consistency check is mentioned for quantity and status?" },
+            { "id": 38, "start": 206.426, "end": 209.426, "text": "How are product details retrieved by their ID?" },
+            { "id": 39, "start": 210.206, "end": 213.926, "text": "What happens if required fields are missing when creating a product?" },
+            { "id": 40, "start": 214.626, "end": 220.866, "text": "What is the significance of returning appropriate HTTP status codes in a RESTful API?" },
+            { "id": 41, "start": 221.426, "end": 225.32599, "text": "Describe the standard success response format for the API." },
+            { "id": 42, "start": 225.966, "end": 229.606, "text": "Describe the standard error response format for the API." },
+            { "id": 43, "start": 230.086, "end": 235.866, "text": "Let's discuss error handling. How does the global error handler middleware work in this application?" },
+            { "id": 44, "start": 236.426, "end": 239.666, "text": "What is the purpose of the Winston logger integration?" },
+            { "id": 45, "start": 240.486, "end": 254.432, "text": "What are some examples of custom error classes implemented in this project What information is included in a validation error Where should the error handling middleware be placed in the Express middleware chain" },
+            { "id": 46, "start": 255.032, "end": 259.152, "text": "What types of errors does the global error handler aim to catch?" },
+            { "id": 47, "start": 259.252, "end": 263.452, "text": "How does the global error handler interact with the Winston logger?" },
+            { "id": 48, "start": 264.192, "end": 267.212, "text": "What are the different log levels configured for Winston?" },
+            { "id": 49, "start": 267.912, "end": 271.132, "text": "What is the purpose of the request logging middleware?" },
+            { "id": 50, "start": 271.132, "end": 276.552, "text": "How does the global error handler determine the HTTP status code to send?" },
+            { "id": 51, "start": 277.172, "end": 281.472, "text": "What happens if an unhandled error occurs without the global error handler?" },
+            { "id": 52, "start": 282.172, "end": 284.912, "text": "What is the benefit of having custom error classes?" },
+            { "id": 53, "start": 285.732, "end": 288.592, "text": "How are stack traces handled in error logging?" },
+            { "id": 54, "start": 289.352, "end": 294.012, "text": "What does status equals error field indicate in an error response?" },
+            { "id": 55, "start": 294.352, "end": 298.052, "text": "What is the primary goal of structured error responses?" },
+            { "id": 56, "start": 298.852, "end": 300.292, "text": "Time for testing questions." },
+            { "id": 57, "start": 300.292, "end": 302.892, "text": "What testing frameworks are used in this project?" },
+            { "id": 58, "start": 303.732, "end": 307.812, "text": "How are API endpoints specifically tested using SuperTest?" },
+            { "id": 59, "start": 308.472, "end": 310.972, "text": "What is the purpose of test coverage reporting?" },
+            { "id": 60, "start": 311.652, "end": 314.69202, "text": "How are dependencies handled when performing unit tests?" },
+            { "id": 61, "start": 315.332, "end": 318.712, "text": "What types of test cases are implemented in the project?" },
+            { "id": 62, "start": 319.412, "end": 324.072, "text": "Provide an example of assertion used in a Jest test for API endpoints." },
+            { "id": 63, "start": 324.492, "end": 329.092, "text": "What is the difference between unit tests and integration tests in this project?" },
+            { "id": 64, "start": 329.092, "end": 333.172, "text": "Why are mock implementations important for testing?" },
+            { "id": 65, "start": 333.172, "end": 337.172, "text": "What aspects of authentication are tested in the project?" },
+            { "id": 66, "start": 337.172, "end": 341.252, "text": "How are error handling scenarios verified through testing?" },
+            { "id": 67, "start": 341.252, "end": 346.292, "text": "What is the purpose of testing both positive and negative test cases?" },
+            { "id": 68, "start": 346.292, "end": 350.052, "text": "How do tests contribute to maintaining code quality?" },
+            { "id": 69, "start": 350.052, "end": 353.572, "text": "What are some of the benefits of comprehensive testing?" },
+            { "id": 70, "start": 353.572, "end": 357.972, "text": "How does SuperTest help in simulating HTTP requests?" },
+            { "id": 71, "start": 357.972, "end": 363.412, "text": "What would be the expected status code for a successful product creation test case?" },
+            { "id": 72, "start": 363.412, "end": 369.092, "text": "Moving on to advanced concepts and improvements, how would you modify this application to use" },
+            { "id": 73, "start": 369.092, "end": 375.598, "text": "a database instead of JSON files What improvements could be made to the current authentication system" },
+            { "id": 74, "start": 379.598, "end": 384.838, "text": "What strategies could be used to improve the performance of file operations?" },
+            { "id": 75, "start": 389.838, "end": 394.218, "text": "How could the application be scaled to handle more users in data?" },
+            { "id": 76, "start": 394.218, "end": 397.918, "text": "What is the benefit of adding a caching layer to this API?" },
+            { "id": 77, "start": 399.038, "end": 404.858, "text": "Why is API documentation, e.g. Swagger OpenAPI, important for this project?" },
+            { "id": 78, "start": 405.55798, "end": 409.05798, "text": "How could containerization, Docker, benefit this project?" },
+            { "id": 79, "start": 409.798, "end": 413.638, "text": "What are some aspects of security enhancements that could be considered?" },
+            { "id": 80, "start": 414.198, "end": 419.698, "text": "How would you handle a concurrent update to the same product to prevent data inconsistencies?" },
+            { "id": 81, "start": 420.098, "end": 423.238, "text": "How would you implement search functionality for products?" },
+            { "id": 82, "start": 423.238, "end": 427.818, "text": "What additional security measures beyond authentication could be implemented?" },
+            { "id": 83, "start": 428.678, "end": 433.698, "text": "How could sensitive data be handled more securely beyond current measures?" },
+            { "id": 84, "start": 434.278, "end": 438.998, "text": "What is the role of PM2 in a production environment for a Node.js application?" },
+            { "id": 85, "start": 439.858, "end": 448.398, "text": "And finally, on best practices and practical scenarios, what is meant by separation of concerns in the project structure?" },
+            { "id": 86, "start": 448.398, "end": 453.358, "text": "How does middleware usage demonstrate best practices in this application?" },
+            { "id": 87, "start": 454.458, "end": 457.858, "text": "What is the importance of proper error handling and logging?" },
+            { "id": 88, "start": 458.638, "end": 462.61798, "text": "What are the key principles of RESTful API design demonstrated here?" },
+            { "id": 89, "start": 463.458, "end": 468.11798, "text": "Why is a modular and maintainable code structure considered a best practice?" },
+            { "id": 90, "start": 468.738, "end": 473.478, "text": "Describe a practical exercise to add a new feature to track product categories." },
+            { "id": 91, "start": 473.478, "end": 478.478, "text": "How would you implement pagination for product listing as the practical exercise?" },
+            { "id": 92, "start": 478.478, "end": 484.478, "text": "What is the purpose of input validation using a validation library as a practical exercise?" },
+            { "id": 93, "start": 484.478, "end": 491.478, "text": "Outline the steps to implement API documentation using Swagger OpenAPI for this project." },
+            { "id": 94, "start": 491.478, "end": 498.478, "text": "And to wrap up, how would you approach adding rate limiting to protect the API as a practical exercise?" },
+            { "id": 95, "start": 498.478, "end": 498.978, "text": "exercise." }
+        ];
+
+        let currentQuestionIndex = 0;
+        const questionDisplay = document.getElementById('question-display');
+        const audioPlayer = document.getElementById('audio-player');
+        const prevButton = document.getElementById('prev-button');
+        const nextButton = document.getElementById('next-button');
+
+        // Function to display the current question and play its audio segment
+        function displayQuestion(index) {
+            // Ensure index is within bounds
+            if (index < 0 || index >= questionsData.length) {
+                console.error("Invalid question index:", index);
+                return;
+            }
+
+            currentQuestionIndex = index;
+            const question = questionsData[currentQuestionIndex];
+
+            // Update question text
+            questionDisplay.textContent = question.text;
+
+            // Update audio player
+            audioPlayer.pause();
+            audioPlayer.currentTime = question.start; // Set audio start time
+            audioPlayer.play();
+
+            // Clear previous timeupdate listener to prevent conflicts
+            audioPlayer.ontimeupdate = null;
+
+            // Set up a new timeupdate listener to stop playback at the end of the segment
+            audioPlayer.ontimeupdate = function() {
+                if (audioPlayer.currentTime >= question.end) {
+                    audioPlayer.pause();
+                    audioPlayer.ontimeupdate = null; // Remove listener once stopped
+                }
+            };
+
+            // Update button states
+            prevButton.disabled = currentQuestionIndex === 0;
+            nextButton.disabled = currentQuestionIndex === questionsData.length - 1;
+
+            // Toggle disabled class for styling
+            if (prevButton.disabled) {
+                prevButton.classList.add('nav-button-disabled');
+                prevButton.classList.remove('nav-button-primary');
+            } else {
+                prevButton.classList.remove('nav-button-disabled');
+                prevButton.classList.add('nav-button-primary');
+            }
+
+            if (nextButton.disabled) {
+                nextButton.classList.add('nav-button-disabled');
+                nextButton.classList.remove('nav-button-primary');
+            } else {
+                nextButton.classList.remove('nav-button-disabled');
+                nextButton.classList.add('nav-button-primary');
+            }
+        }
+
+        // Event listener for Next button
+        nextButton.addEventListener('click', () => {
+            if (currentQuestionIndex < questionsData.length - 1) {
+                displayQuestion(currentQuestionIndex + 1);
+            }
+        });
+
+        // Event listener for Previous button
+        prevButton.addEventListener('click', () => {
+            if (currentQuestionIndex > 0) {
+                displayQuestion(currentQuestionIndex - 1);
+            }
+        });
+
+        // Initial load of the first question when the DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            if (questionsData.length > 0) {
+                displayQuestion(0);
+            } else {
+                questionDisplay.textContent = "No questions available.";
+                prevButton.disabled = true;
+                nextButton.disabled = true;
+                prevButton.classList.add('nav-button-disabled');
+                nextButton.classList.add('nav-button-disabled');
+            }
+        });
+    </script>
+</body>
+</html>
