@@ -6,12 +6,12 @@
     <title>Interview Question Player</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #1a202c; /* Dark background */
-            color: #e2e8f0; /* Light text */
+            font-family: 'Courier New', Courier, monospace; /* Changed to Courier font */
+            background-color: #f8f8f8; /* Very light grey for background */
+            color: #333333; /* Dark grey text */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -19,75 +19,103 @@
             margin: 0;
             padding: 20px;
             box-sizing: border-box;
+            overflow: hidden;
         }
         .container {
-            background-color: #2d3748; /* Slightly lighter dark background for card */
-            border-radius: 1.5rem; /* More rounded corners */
-            padding: 2.5rem; /* Increased padding */
-            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2); /* Stronger shadow */
-            max-width: 900px; /* Max width for larger screens */
+            padding: 3rem;
+            max-width: 1000px;
             width: 100%;
             text-align: center;
             display: flex;
             flex-direction: column;
-            gap: 2rem; /* Space between elements */
+            gap: 2.5rem;
+            animation: fadeIn 0.8s ease-out;
         }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         .question-text {
-            font-size: 2.5rem; /* Larger text */
-            font-weight: 600; /* Semi-bold */
-            color: #f7fafc; /* Even lighter text for question */
-            margin-bottom: 1.5rem;
-            line-height: 1.4; /* Improved readability */
+            font-size: 2.75rem;
+            font-weight: 700;
+            color: #000000; /* Pure black for question text */
+            margin-bottom: 1rem;
+            line-height: 1.4;
+            letter-spacing: -0.025em;
         }
         .audio-controls {
             width: 100%;
-            border-radius: 0.75rem; /* Rounded audio player */
-            background-color: #4a5568; /* Darker background for audio controls */
-            padding: 0.75rem;
-            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+            border-radius: 1rem;
+            background-color: #cccccc; /* Medium grey for audio controls */
+            padding: 0.8rem;
+            box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.1); /* Slightly darker inset shadow */
         }
         .nav-buttons {
             display: flex;
             justify-content: center;
-            gap: 1.5rem; /* Space between buttons */
+            gap: 2rem;
             margin-top: 2rem;
         }
         .nav-button {
-            padding: 1rem 2.5rem;
-            border-radius: 1rem; /* Very rounded buttons */
-            font-weight: 700; /* Bold text */
-            transition: all 0.2s ease-in-out;
+            padding: 1.2rem 3rem;
+            border-radius: 9999px;
+            font-weight: 700;
+            transition: all 0.3s ease-in-out;
             cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15); /* Button shadow */
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* Stronger shadow for black buttons */
+            background-image: linear-gradient(to right, #4a4a4a, #1a1a1a); /* Dark grey to black gradient */
+            color: #ffffff; /* White text for buttons */
+            border: none;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
-        .nav-button-primary {
-            background-color: #63b3ed; /* Light blue */
-            color: #1a202c;
-        }
-        .nav-button-primary:hover:not(:disabled) {
-            background-color: #4299e1; /* Darker blue on hover */
-            transform: translateY(-2px);
-            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+        .nav-button:hover:not(:disabled) {
+            background-image: linear-gradient(to right, #1a1a1a, #000000); /* Darker gradient on hover */
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3); /* Stronger shadow on hover */
         }
         .nav-button-disabled {
-            background-color: #4a5568; /* Grey for disabled */
-            color: #a0aec0;
+            background-image: none;
+            background-color: #e0e0e0; /* Light grey for disabled */
+            color: #888888; /* Muted grey text color */
             cursor: not-allowed;
             box-shadow: none;
+            transform: none;
+            opacity: 0.7;
         }
 
         /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                padding: 2rem;
+                gap: 2rem;
+            }
+            .question-text {
+                font-size: 2.2rem;
+            }
+            .nav-button {
+                padding: 1rem 2rem;
+                font-size: 0.9rem;
+            }
+        }
+
         @media (max-width: 640px) {
             .question-text {
-                font-size: 1.8rem; /* Smaller font on mobile */
+                font-size: 1.8rem;
             }
             .container {
                 padding: 1.5rem;
                 gap: 1.5rem;
             }
+            .nav-buttons {
+                flex-direction: column;
+                gap: 1rem;
+            }
             .nav-button {
-                padding: 0.8rem 1.8rem;
-                font-size: 0.9rem;
+                width: 100%;
+                font-size: 1rem;
             }
         }
     </style>
@@ -109,7 +137,9 @@
     </div>
 
     <script>
-        // Embedded JSON data
+        console.log("Script for Interview Question Player loaded."); // Log to confirm script execution
+
+        // Embedded JSON data for interview questions
         const questionsData = [
             { "id": 0, "start": 0, "end": 4.18, "text": "All right, let's dive into some questions about our product inventory API." },
             { "id": 1, "start": 4.72, "end": 8.9, "text": "First up, what is the primary purpose of this RESTful API project?" },
@@ -144,7 +174,7 @@
             { "id": 30, "start": 167.046, "end": 170.546, "text": "What is the purpose of data validation before storing data?" },
             { "id": 31, "start": 171.166, "end": 176.426, "text": "What does atomic operations mean in the context of file operations, and why are they important?" },
             { "id": 32, "start": 176.426, "end": 181.006, "text": "How is product status automatically determined based on quantity?" },
-            { "id": 33, "start": 181.986, "end": 186.706, "text": "List the four main CRAT operations and their corresponding HTTP methods." },
+            { "id": 33, "start": 181.986, "end": 186.706, "text": "List the four main CRUD operations and their corresponding HTTP methods." },
             { "id": 34, "start": 187.386, "end": 192.746, "text": "What is the difference between put and patch HTTP methods for product updates?" },
             { "id": 35, "start": 193.426, "end": 197.306, "text": "What are some examples of validation checks performed on product data?" },
             { "id": 36, "start": 197.966, "end": 201.426, "text": "What is the expected date format for product data validation?" },
@@ -215,9 +245,13 @@
         const prevButton = document.getElementById('prev-button');
         const nextButton = document.getElementById('next-button');
 
-        // Function to display the current question and play its audio segment
+        /**
+         * Displays the question at the given index and plays its corresponding audio segment.
+         * @param {number} index - The index of the question to display.
+         */
         function displayQuestion(index) {
-            // Ensure index is within bounds
+            console.log("displayQuestion called with index:", index); // Log function entry
+            // Ensure the index is within the valid range of questions
             if (index < 0 || index >= questionsData.length) {
                 console.error("Invalid question index:", index);
                 return;
@@ -226,30 +260,31 @@
             currentQuestionIndex = index;
             const question = questionsData[currentQuestionIndex];
 
-            // Update question text
+            // Update the text content of the question display element
             questionDisplay.textContent = question.text;
+            console.log("Question text updated to:", question.text); // Log text update
 
-            // Update audio player
+            // Pause the audio, set its current time to the start of the question segment, and play
             audioPlayer.pause();
-            audioPlayer.currentTime = question.start; // Set audio start time
+            audioPlayer.currentTime = question.start;
             audioPlayer.play();
 
-            // Clear previous timeupdate listener to prevent conflicts
+            // Clear any previously set timeupdate listener to prevent multiple listeners
             audioPlayer.ontimeupdate = null;
 
-            // Set up a new timeupdate listener to stop playback at the end of the segment
+            // Set a new timeupdate listener to stop the audio when it reaches the end of the segment
             audioPlayer.ontimeupdate = function() {
                 if (audioPlayer.currentTime >= question.end) {
                     audioPlayer.pause();
-                    audioPlayer.ontimeupdate = null; // Remove listener once stopped
+                    audioPlayer.ontimeupdate = null; // Remove the listener once playback stops
                 }
             };
 
-            // Update button states
+            // Update the disabled state of the navigation buttons
             prevButton.disabled = currentQuestionIndex === 0;
             nextButton.disabled = currentQuestionIndex === questionsData.length - 1;
 
-            // Toggle disabled class for styling
+            // Toggle CSS classes for visual styling of disabled/enabled buttons
             if (prevButton.disabled) {
                 prevButton.classList.add('nav-button-disabled');
                 prevButton.classList.remove('nav-button-primary');
@@ -267,30 +302,36 @@
             }
         }
 
-        // Event listener for Next button
+        // Add event listener for the Next button to move to the next question
         nextButton.addEventListener('click', () => {
             if (currentQuestionIndex < questionsData.length - 1) {
                 displayQuestion(currentQuestionIndex + 1);
             }
         });
 
-        // Event listener for Previous button
+        // Add event listener for the Previous button to move to the previous question
         prevButton.addEventListener('click', () => {
             if (currentQuestionIndex > 0) {
                 displayQuestion(currentQuestionIndex - 1);
             }
         });
 
-        // Initial load of the first question when the DOM is ready
+        // Initialize the player by displaying the first question when the DOM is fully loaded
         document.addEventListener('DOMContentLoaded', () => {
-            if (questionsData.length > 0) {
-                displayQuestion(0);
-            } else {
-                questionDisplay.textContent = "No questions available.";
-                prevButton.disabled = true;
-                nextButton.disabled = true;
-                prevButton.classList.add('nav-button-disabled');
-                nextButton.classList.add('nav-button-disabled');
+            console.log("DOMContentLoaded fired. Attempting to display first question."); // Log DOMContentLoaded
+            try {
+                if (questionsData.length > 0) {
+                    displayQuestion(0);
+                } else {
+                    questionDisplay.textContent = "No questions available.";
+                    prevButton.disabled = true;
+                    nextButton.disabled = true;
+                    prevButton.classList.add('nav-button-disabled');
+                    nextButton.classList.add('nav-button-disabled');
+                }
+            } catch (error) {
+                console.error("Error during initial question display:", error);
+                questionDisplay.textContent = "An error occurred while loading questions. Please check the console."; // User feedback on error
             }
         });
     </script>
